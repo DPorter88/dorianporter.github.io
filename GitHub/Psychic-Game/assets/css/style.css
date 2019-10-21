@@ -1,0 +1,19 @@
+.game {
+    width: 100%;
+    font-size: 14px;
+    font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+body {
+    background-color: black;
+    width: 100%;
+    margin: auto;
+    font-size: 14px;
+    font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+    position: static;
+    color: rgba(235, 202, 13, 0.884);
+}         
+
+.psych {
+    width: 50%;
+}

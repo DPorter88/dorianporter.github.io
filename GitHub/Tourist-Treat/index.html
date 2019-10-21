@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="viewport" content="initial-scale=1.0, width=device-width">
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"
+    type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"
+    type="text/javascript" charset="utf-8"></script>
+   
+    <title>Tourist Treat</title>
+</head>
+<body>
+    <div style="width: 640px; height: 480px" id="mapContainer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+
+// <!--Places API URL--> //
+
+    var settings = {
+	"async": true,
+	"crossDomain": true,
+	"url": "https://worldwide-restaurants.p.rapidapi.com/photos",
+	"method": "POST",
+	"headers": {
+		"x-rapidapi-host": "worldwide-restaurants.p.rapidapi.com",
+		"x-rapidapi-key": "4e481f9ecbmsh33281247a0ea5b2p15a86ejsneabeb0eeb70d",
+		"content-type": "application/x-www-form-urlencoded"
+	},
+	"data": {
+		"language": "en_US",
+		"location_id": "15333482",
+		"currency": "USD",
+		"limit": "15"
+	}
+}
+
+$.ajax(settings).done(function(response) {
+    console.log(response);
+    
+
+});
+
+// <!-- Instantiate a map and platform object: --> //
+var platform = new H.service.Platform({
+'apikey': 'a30GZCQoXi5vdE-oenNQ2wMNsZYwOUuvF0BKhUMMe6U'
+});
+
+// <!-- Retrieve the target element for the map: --> //
+var targetElement = document.getElementById('mapContainer');
+
+// <!-- Get the default map types from the platform object: --> //
+var defaultLayers = platform.createDefaultLayers();
+
+// <!-- Instantiate the map:--> //
+var map = new H.Map(
+  document.getElementById('mapContainer'),
+  defaultLayers.vector.normal.map,
+  {
+  zoom: 10,
+  center: { lat: 52.51, lng: 13.4 }
+  });
+
+// <!-- Create the parameters for the routing request: --> //
+var routingParameters = {
+  // <!-- The routing mode: --> //
+  'mode': 'fastest;car',
+  // <!-- The start point of the route: --> //
+  'waypoint0': 'geo!50.1120423728813,8.68340740740811',
+  // <!-- The end point of the route: --> //
+  'waypoint1': 'geo!52.5309916298853,13.3846220493377',
+  // <!-- To retrieve the shape of the route we choose the route --> //
+  // <!-- representation mode 'display' --> //
+  'representation': 'display'
+};
+
+// <!-- Define a callback function to process the routing response: --> //
+var onResult = function(result) {
+  var route,
+  routeShape,
+  startPoint,
+  endPoint,
+  linestring;
+  if(result.response.route) {
+  // <!-- Pick the first route from the response: --> //
+  route = result.response.route[0];
+  // <!-- Pick the route's shape: --> //
+  routeShape = route.shape;
+
+  // <!-- Create a linestring to use as a point source for the route line --> //
+  linestring = new H.geo.LineString();
+
+  // <!-- Push all the points in the shape into the linestring: --> //
+  routeShape.forEach(function(point) {
+  var parts = point.split(',');
+  linestring.pushLatLngAlt(parts[0], parts[1]);
+  });
+
+  // <!-- Retrieve the mapped positions of the requested waypoints: --> //
+  startPoint = route.waypoint[0].mappedPosition;
+  endPoint = route.waypoint[1].mappedPosition;
+
+  // <!-- Create a polyline to display the route: --> //
+  var routeLine = new H.map.Polyline(linestring, {
+  style: { strokeColor: 'blue', lineWidth: 3 }
+  });
+
+  // <!-- Create an outline for the route polyline: --> //
+  var routeOutline = new H.map.Polyline(linestring, {
+  style: {
+  lineWidth: 10,
+  strokeColor: 'rgba(0, 128, 255, 0.7)',
+  lineTailCap: 'arrow-tail',
+  lineHeadCap: 'arrow-head'
+  }
+});
+
+  // <!-- Create a patterned polyline: --> //
+  var routeArrows = new H.map.Polyline(linestring, {
+  style: {
+  lineWidth: 10,
+  fillColor: 'white',
+  strokeColor: 'rgba(255, 255, 255, 1)',
+  lineDash: [0, 2],
+  lineTailCap: 'arrow-tail',
+  lineHeadCap: 'arrow-head' }
+  }
+);
+
+  // <!-- create a group that represents the route line and contains --> //
+  // <!-- outline and the pattern -->//
+  var routeLine = new H.map.Group();
+  routeLine.addObjects([routeOutline, routeArrows]);
+
+  // <!-- Create a marker for the start point: --> //
+  var startMarker = new H.map.Marker({
+  lat: startPoint.latitude,
+  lng: startPoint.longitude
+  });
+
+  // <!-- Create a marker for the end point: --> //
+  var endMarker = new H.map.Marker({
+  lat: endPoint.latitude,
+  lng: endPoint.longitude
+  });
+
+  // <!-- Add the route polyline and the two markers to the map: --> //
+  map.addObjects([routeLine, startMarker, endMarker]);
+
+  // <!-- Set the map's viewport to make the whole route visible: --> //
+  map.getViewModel().setLookAtData({bounds: routeLine.getBoundingBox()});
+  }
+};
+
+// <!-- Get an instance of the routing service: //
+var router = platform.getRoutingService();
+
+// <!-- Call calculateRoute() with the routing parameters,
+// the callback and an error callback function (called if a
+// communication error occurs): --> //
+router.calculateRoute(routingParameters, onResult,
+  function(error) {
+  alert(error.message);
+  });
+
+  var routingParams = {
+  'mode': 'fastest;car;',
+  'start': 'geo!52.5,13.4',
+  'range': '900',
+  'rangetype': 'time'
+};
+
+// <!-- Define a callback function to process the isoline response. --> //
+var onResult = function(result) {
+  var center = new H.geo.Point(
+    result.response.center.latitude,
+    result.response.center.longitude),
+  isolineCoords = result.response.isoline[0].component[0].shape,
+  linestring = new H.geo.LineString(),
+  isolinePolygon,
+  isolineCenter;
+
+  // <!-- Add the returned isoline coordinates to a linestring: --> //
+  isolineCoords.forEach(function(coords) {
+  linestring.pushLatLngAlt.apply(linestring, coords.split(','));
+  });
+
+  // <!-- Create a polygon and a marker representing the isoline: --> //
+  isolinePolygon = new H.map.Polygon(linestring);
+  isolineCenter = new H.map.Marker(center);
+
+  // <!-- Add the polygon and marker to the map: --> //
+  map.addObjects([isolineCenter, isolinePolygon]);
+
+  // <!-- Center and zoom the map so that the whole isoline polygon is
+  // in the viewport: --> //
+  map.getViewModel().setLookAtData({bounds: isolinePolygon.getBoundingBox()});
+};
+
+// <!-- Get an instance of the routing service: --> //
+var router = platform.getRoutingService();
+
+// <!-- Call the Routing API to calculate an isoline: --> //
+router.calculateIsoline(
+  routingParams,
+  onResult,
+  function(error) {
+  alert(error.message);
+  })
+
+$.ajax(platform).done(function(response) {
+    console.log(response);
+
+
+})
+</script>
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+  

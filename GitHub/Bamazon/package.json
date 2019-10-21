@@ -1,0 +1,20 @@
+{
+    "name": "bamazon",
+    "version": "1.0.0",
+    "description": "Homework",
+    "main": "bamazonCustomer.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/DPorter88/bamazon.git"
+    },
+    
+    },
+    "homepage": "https://github.com/billbitt/bamazon#readme",
+    "dependencies": {
+      "inquirer": "^2.0.0",
+      "mysql": "^2.12.0"
+    }
+  }

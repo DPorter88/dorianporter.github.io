@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GifTastic!</title>
+</head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link rel="stylesheet" href="assets/style.css">
+
+
+<body>
+
+    <div class="container">
+
+
+
+        <div class="Div1">
+           <div id="animal-view"></div> 
+           <form id="animal-form">
+               <label for="animal-input">Add an Animal</label>
+               <br>
+               <input type="text" id="animal-input">
+               <br>
+               <br>
+            <!-- Add animal-->
+               <input id="add-animal" type="submit" value="submit">
+           </form>
+
+
+        </div>
+
+        <!--Gifs-->
+        <div id="giphy-view"></div>
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+          var subjects = ["Wolf", "Tiger","Gorilla","Dolphin"];
+
+          
+          function displayGiphyInfo() {
+
+              var giphy =$(this).attr("data-name");
+
+              var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + giphy +
+        
+          console.log(queryURL);
+
+          $.ajax({
+              url: queryURL,
+          method: 'GET'
+        }).done(function (response) {
+
+            var results = response.data;
+
+            
+          for (var i = 0; i < results.length; i++) {
+
+
+//   creating a div to hold the giphy
+var giphyDiv = $("<div>");
+
+
+var rating1 = response.data[i].rating;
+//   console.log(rating1);
+
+var pOne = $("<p>").text("Rating: " + rating1);
+
+giphyDiv.append(pOne);
+
+// need a still in order to make it animate, must use the below code
+var imgURL = response.data[i].images.fixed_height_still.url;
+console.log(imgURL);
+
+var image = $("<img>").attr("src", imgURL);
+image.attr("class", "giphy");
+image.attr("data-state", "still");
+image.attr("data-still", response.data[i].images.fixed_height_still.url);
+image.attr("data-animate", response.data[i].images.fixed_height.url);
+
+giphyDiv.append(image);
+
+//   putting the giphy ontop the previous giphy
+$("#giphy-view").prepend(giphyDiv);
+
+}
+});
+
+}
+
+// animal data
+function renderButtons() {
+
+$("#animal-view").empty();
+
+for (var i = 0; i < topics.length; i++) {
+
+var btn = $("<button>");
+
+btn.addClass("animal");
+
+btn.attr("data-name", topics[i]);
+
+btn.text(topics[i]);
+
+$("#animal-view").append(btn);
+
+}
+};
+
+$("#add-animal").on("click", function (event) {
+
+
+event.preventDefault();
+
+
+console.log($("#animal-input").val());
+
+var userInput = $("#animal-input").val().trim();
+
+console.log("Current: " + topics);
+topics.push(userInput);
+console.log("New Array: " + topics);
+
+renderButtons();
+});
+
+$(document).on("click", ".animal", displayGiphyInfo);
+// Calling the renderButtons 
+renderButtons();
+
+
+$("#giphy-view").on("click", "img", function (event) {
+console.log("click");
+
+console.log($(this));
+var state = $(this).attr("data-state");
+console.log("this is my current state" + state);
+if (state === "still") {
+console.log($(this).attr("data-animate"));
+$(this).attr("src", $(this).attr("data-animate"));
+$(this).attr("data-state", "animate");
+} else {
+$(this).attr("src", $(this).attr("data-still"));
+$(this).attr("data-state", "still");
+}
+});
+</script>
+</div>
+</body>
+
+</html>
+
+
+          })
+
+
+          }
+    </div>
+    
+</body>
+</html>
